@@ -6,14 +6,21 @@
 
 using namespace std;
 
+typedef vector<vector<Color>> Board;
+typedef pair<int, int> Direction;
+typedef pair<int, vector<Direction>> Move;
+
 class Game {
 public:
-	bool ChangePlayer(vector<vector<Color>>&, Color);
-	int ExecAct(vector<vector<Color>>&, int, int, Color, bool);
-	int CheckEnd(vector<vector<Color>>&);
+	bool ChangePlayer(const Board&, Color);
+	bool CheckAct(vector<Move>, int, int);
+	int ExecAct(Board&, int, int, Color);
+	int UndoAct(Board&, int, int, Color);
+	vector<Move> GetAvaliableAct(const Board&, Color);
+	int CheckEnd(const Board&);
 
 	Player* players[2];
-	vector<vector<Color>> board;
+	Board board;
 	Game();
 	void Print();
 	void Start();
@@ -25,7 +32,6 @@ private:
 	void init();
 	void printWinner();
 	void execAct(int, int);
-	bool checkAction(int, int);
 	int checkEnd();
 };
 

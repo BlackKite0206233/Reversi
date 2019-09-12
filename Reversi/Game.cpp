@@ -7,14 +7,21 @@ int x[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 int y[] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 
 
-int Game::ExecAct(vector<vector<Color>>& board, int row, int col, Color color, bool isCheck) {
+bool Game::CheckAct(vector<Move> avaliableMoves, int row, int col) {
+	for (auto& move : avaliableMoves) {
+		if (move.first / 8 == row && move.first % 8 == col) {
+			return true;
+		}
+	}
+	return false;
+}
+
+int Game::ExecAct(Board& board, int row, int col, Color color) {
 	int revCnt = 0;
 	if (board[row][col] != Color::Empty) {
 		return false;
 	}
-	if (!isCheck) {
-		board[row][col] = color;
-	}
+	board[row][col] = color;
 	for (int w = 0; w < 8; w++) {
 		int startY = row;
 		int startX = col;
@@ -29,13 +36,8 @@ int Game::ExecAct(vector<vector<Color>>& board, int row, int col, Color color, b
 				startY += y[w];
 				startX += x[w];
 				if (board[startY][startX] == color) {
-					if (isCheck) {
-						return true;
-					}
-					else {
-						fill = true;
-						break;
-					}
+					fill = true;
+					break;
 				}
 				count++;
 			}
@@ -54,19 +56,12 @@ int Game::ExecAct(vector<vector<Color>>& board, int row, int col, Color color, b
 	return revCnt;
 }
 
-bool Game::ChangePlayer(vector<vector<Color>>& board, Color color) {
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			if (this->ExecAct(board, i, j, color, true)) {
-				return true;
-			}
-		}
-	}
-	return false;
+bool Game::ChangePlayer(const Board& board, Color color) {
+	return this->GetAvaliableAct(board, color).size() != 0;
 }
 
-int Game::CheckEnd(vector<vector<Color>>& board) {
-	if (!this->ChangePlayer(board, Color::Black) && !this->ChangePlayer(board, Color::White)) {
+int Game::CheckEnd(const Board& board) {
+	if (!this->GetAvaliableAct(board, Color::Black).size() && !this->GetAvaliableAct(board, Color::White).size()) {
 		this->winner = this->players[0]->num < this->players[1]->num;
 		return 1;
 	}
@@ -90,8 +85,10 @@ void Game::Start() {
 
 		pair<int, int> act;
 		while (1) {
+			vector<Move> avaliableMoves = this->GetAvaliableAct(this->board, this->players[this->currentPlayer]->color);
 			act = this->players[this->currentPlayer]->Move();
-			if (this->checkAction(act.first, act.second)) {
+
+			if (this->CheckAct(avaliableMoves, act.first, act.second)) {
 				break;
 			}
 		}
@@ -153,13 +150,9 @@ void Game::printWinner() {
 }
 
 void Game::execAct(int row, int col) {
-	int revCnt = this->ExecAct(this->board, row, col, this->players[this->currentPlayer]->color, false);
+	int revCnt = this->ExecAct(this->board, row, col, this->players[this->currentPlayer]->color);
 	this->players[this->currentPlayer]->num += revCnt + 1;
 	this->players[1 - this->currentPlayer]->num -= revCnt;
-}
-
-bool Game::checkAction(int row, int col) {
-	return this->ExecAct(this->board, row, col, this->players[this->currentPlayer]->color, true);
 }
 
 int Game::checkEnd() {
