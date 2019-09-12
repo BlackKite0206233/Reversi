@@ -26,7 +26,7 @@ int Game::ExecAct(Board& board, Move avaliableMoves, int row, int col, Color col
 			startY += y[direction.first];
 			startX += x[direction.first];
 			revCnt++;
-		} while(startY != direction.second / 8 && startX != direction.second % 8);
+		} while(startY != direction.second / 8 || startX != direction.second % 8);
 	}
 	return revCnt;
 }
@@ -39,7 +39,7 @@ int Game::UndoAct(Board& board, Move avaliableMoves, int row, int col, Color col
 		int startY = row + y[direction.first];
 		int startX = col + x[direction.first];
 		do {
-			board[startY][startX] = -static_cast<int>(color);
+			board[startY][startX] = Color(-static_cast<int>(color));
 			startY += y[direction.first];
 			startX += x[direction.first];
 			revCnt++;
@@ -63,7 +63,7 @@ Move Game::GetAvaliableAct(const Board& board, Color color) {
 
 vector<Direction> Game::getDirection(const Board& board, int row, int col, Color color) {
 	vector<Direction> directions;
-	if (board[row][col] == Color::Empty) {
+	if (board[row][col] != Color::Empty) {
 		return directions;
 	}
 	for (int w = 0; w < 8; w++) {
@@ -153,7 +153,7 @@ void Game::Print() {
 		cout << endl << row << endl;
 	}
 	cout << endl;
-	cout << "Turn: " << static_cast<char>(this->players[this->currentPlayer]->color) << endl;
+	cout << "Turn: " << (this->players[this->currentPlayer]->color == Color::Black ? "@" : "O") << endl;
 }
 
 bool Game::canMove(int x, int y) {

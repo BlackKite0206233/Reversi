@@ -3,10 +3,10 @@
 pair<int, int> RealPlayer::Move() {
 	char row, col;
 	while (1) {
-		cout << "請輸入座標 (row, col): ";
+		cout << "please input coordination (row, col): ";
 		cin >> row >> col;
 		if (row < '1' || row > '8' || col < 'A' || col > 'H') {
-			cout << "輸入超出範圍" << endl;
+			cout << "input out of range" << endl;
 		}
 		else {
 			break;
