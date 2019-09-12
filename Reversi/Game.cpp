@@ -10,40 +10,30 @@ bool Game::ChangePlayer(const Board& board, Color color) {
 	return this->GetAvaliableAct(board, color).size() != 0;
 }
 
-bool Game::CheckAct(Move avaliableMoves, int row, int col) {
+bool Game::CheckAct(Move& avaliableMoves, int row, int col) {
 	return avaliableMoves.find(row * 8 + col) != avaliableMoves.end();
 }
 
-int Game::ExecAct(Board& board, Move avaliableMoves, int row, int col, Color color) {
+int Game::ExecAct(Board& board, int row, int col, Color color, vector<Direction> directions, bool reverse) {
 	int revCnt = 0;
-	board[row][col] = color;
-	vector<Direction> directions = avaliableMoves[row * 8 + col];
+	if (reverse) {
+		board[row][col] = Color::Empty;
+	} else {
+		board[row][col] = color;
+	}
 	for (auto& direction : directions) {
 		int startY = row + y[direction.first];
 		int startX = col + x[direction.first];
 		do {
-			board[startY][startX] = color;
+			if (reverse) {
+				board[startY][startX] = Color(-static_cast<int>(color));
+			} else {
+				board[startY][startX] = color;
+			}
 			startY += y[direction.first];
 			startX += x[direction.first];
 			revCnt++;
 		} while(startY != direction.second / 8 || startX != direction.second % 8);
-	}
-	return revCnt;
-}
-
-int Game::UndoAct(Board& board, Move avaliableMoves, int row, int col, Color color) {
-	int revCnt = 0;
-	board[row][col] = Color::Empty;
-	vector<Direction> directions = avaliableMoves[row * 8 + col];
-	for (auto& direction : directions) {
-		int startY = row + y[direction.first];
-		int startX = col + x[direction.first];
-		do {
-			board[startY][startX] = Color(-static_cast<int>(color));
-			startY += y[direction.first];
-			startX += x[direction.first];
-			revCnt++;
-		} while(startY != direction.second / 8 && startX != direction.second % 8);
 	}
 	return revCnt;
 }
@@ -175,8 +165,8 @@ void Game::printWinner() {
 	cout << "winner is player" << this->winner << " !!!" << endl;
 }
 
-void Game::execAct(Move avaliableMoves, int row, int col) {
-	int revCnt = this->ExecAct(this->board, avaliableMoves, row, col, this->players[this->currentPlayer]->color);
+void Game::execAct(Move& avaliableMoves, int row, int col) {
+	int revCnt = this->ExecAct(this->board, row, col, this->players[this->currentPlayer]->color, avaliableMoves[row * 8 + col], false);
 	this->players[this->currentPlayer]->num += revCnt + 1;
 	this->players[1 - this->currentPlayer]->num -= revCnt;
 }

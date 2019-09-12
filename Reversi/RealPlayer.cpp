@@ -1,6 +1,6 @@
 #include "RealPlayer.h"
 
-pair<int, int> RealPlayer::Move() {
+pair<int, int> RealPlayer::Move(const Board& board) {
 	char row, col;
 	while (1) {
 		cout << "please input coordination (row, col): ";

@@ -15,6 +15,6 @@ public:
 	int num;
 	Color color;
 	void Init();
-	virtual pair<int, int> Move();
+	virtual pair<int, int> Move(const Board&);
 };
 
