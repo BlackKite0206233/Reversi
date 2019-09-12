@@ -3,10 +3,10 @@
 
 using namespace std;
 
-enum class Color : char {
-	Black = '@',
-	White = 'O',
-	Empty = ' '
+enum class Color {
+	Black = 1,
+	White = -1,
+	Empty = 0
 };
 
 class Player {

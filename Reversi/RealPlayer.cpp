@@ -3,10 +3,10 @@
 pair<int, int> RealPlayer::Move() {
 	char row, col;
 	while (1) {
-		cout << "½Ð¿é¤J®y¼Ð (row, col): ";
+		cout << "è«‹è¼¸å…¥åº§æ¨™ (row, col): ";
 		cin >> row >> col;
 		if (row < '1' || row > '8' || col < 'A' || col > 'H') {
-			cout << "¿é¤J¶W¥X½d³ò" << endl;
+			cout << "è¼¸å…¥è¶…å‡ºç¯„åœ" << endl;
 		}
 		else {
 			break;
