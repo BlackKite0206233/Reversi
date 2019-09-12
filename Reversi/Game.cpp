@@ -7,7 +7,7 @@ int x[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 int y[] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 
 bool Game::ChangePlayer(const Board& board, Color color) {
-	return this->GetAvaliableAct(board, color).size() != 0;
+	return Game::GetAvaliableAct(board, color).size() != 0;
 }
 
 bool Game::CheckAct(Move& avaliableMoves, int row, int col) {
@@ -42,7 +42,7 @@ Move Game::GetAvaliableAct(const Board& board, Color color) {
 	Move avaliableMoves;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			vector<Direction> directions = this->getDirection(board, i, j, color);
+			vector<Direction> directions = Game::getDirection(board, i, j, color);
 			if (directions.size()) {
 				avaliableMoves[i * 8 + j] = directions;
 			}
@@ -59,11 +59,11 @@ vector<Direction> Game::getDirection(const Board& board, int row, int col, Color
 	for (int w = 0; w < 8; w++) {
 		int startY = row;
 		int startX = col;
-		if (this->canMove(startX + x[w], startY + y[w]) &&
+		if (Game::canMove(startX + x[w], startY + y[w]) &&
 			static_cast<int>(board[startY + y[w]][startX + x[w]]) == -static_cast<int>(color)) {
 			startY += y[w];
 			startX += x[w];
-			while (this->canMove(startX + x[w], startY + y[w])) {
+			while (Game::canMove(startX + x[w], startY + y[w])) {
 				startY += y[w];
 				startX += x[w];
 				if (board[startY][startX] == color) {
@@ -77,8 +77,7 @@ vector<Direction> Game::getDirection(const Board& board, int row, int col, Color
 }
 
 int Game::CheckEnd(const Board& board) {
-	if (!this->GetAvaliableAct(board, Color::Black).size() && !this->GetAvaliableAct(board, Color::White).size()) {
-		this->winner = this->players[0]->num < this->players[1]->num;
+	if (!Game::GetAvaliableAct(board, Color::Black).size() && !Game::GetAvaliableAct(board, Color::White).size()) {
 		return 1;
 	}
 	return 0;
@@ -102,7 +101,7 @@ void Game::Start() {
 		pair<int, int> act;
 		Move avaliableMoves = this->GetAvaliableAct(this->board, this->players[this->currentPlayer]->color);
 		while (1) {
-			act = this->players[this->currentPlayer]->Move();
+			act = this->players[this->currentPlayer]->Act(board);
 
 			if (this->CheckAct(avaliableMoves, act.first, act.second)) {
 				break;
@@ -111,6 +110,7 @@ void Game::Start() {
 		this->execAct(avaliableMoves, act.first, act.second);
 
 		if (this->checkEnd()) {
+			this->winner = this->players[0]->num < this->players[1]->num;
 			this->printWinner();
 			break;
 		}

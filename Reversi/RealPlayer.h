@@ -3,6 +3,6 @@
 
 class RealPlayer : public Player {
 public:
-	pair<int, int> Move(const Board&) override;
+	pair<int, int> Act(const Board&) override;
 };
 

@@ -13,7 +13,7 @@ int main()
 	Game game = Game();
 
 	game.players[0] = new RealPlayer();
-	game.players[1] = new RealPlayer();
+	game.players[1] = new AIPlayer(200);
 
 	while (1) {
 		game.Start();

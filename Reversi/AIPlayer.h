@@ -3,9 +3,11 @@
 
 class AIPlayer : public Player {
 public:
-	pair<int, int> Move(const Board&) override;
+	AIPlayer(int);
+	pair<int, int> Act(const Board&) override;
 private:
-	pair<int, int> negamax(Board&, Color, int);
+	int depth;
+	int negamax(Board&, Color);
 	int alphabeta(Board&, Color, int, int, int);
 	int score(Board&, Color);
 };

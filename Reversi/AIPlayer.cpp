@@ -1,31 +1,34 @@
 #include "AIPlayer.h"
 
-pair<int, int> AIPlayer::Move(const Board& board) {
-	Board b = board;
-	return this->negamax(b, this->color, 8);
+AIPlayer::AIPlayer(int depth) : depth(depth) {
+
 }
 
-pair<int, int> AIPlayer::negamax(Board& board, Color color, int depth) {
-	int row, col;
+pair<int, int> AIPlayer::Act(const Board& board) {
+	Board b = board;
+	int coord = this->negamax(b, this->color);
+	return pair<int, int>(coord / 8, coord % 8);
+}
+
+int AIPlayer::negamax(Board& board, Color color) {
+	int coord;
 	int alpha = -100;
 	int beta = 100;
 	Move avaliableMoves = Game::GetAvaliableAct(board, color);
-	row = avaliableMoves.begin()->first / 8;
-	col = avaliableMoves.begin()->first % 8;
+	coord = avaliableMoves.begin()->first;
 	for (auto& [key, value] : avaliableMoves) {
-		Game::ExecAct(board, key / 8, key % 8, value, color, false);
-		int val = -this->alphabeta(board, Color(-static_cast<int>(color), depth, -beta, -alpha);
-		Game::ExecAct(board, key / 8, key % 8, value, color, true);
+		Game::ExecAct(board, key / 8, key % 8, color, value, false);
+		int val = -this->alphabeta(board, Color(-static_cast<int>(color)), this->depth, -beta, -alpha);
+		Game::ExecAct(board, key / 8, key % 8, color, value, true);
 		if (val >= beta) {
-			return pair<int, int>(key / 8, key % 8);
+			return key;
 		}
 		if (val > alpha) {
 			alpha = val;
-			row = key / 8;
-			col = key % 8;
+			coord = key;
 		}
 	}
-	return pair<int, int>(row, col);
+	return coord;
 }
 
 int AIPlayer::alphabeta(Board& board, Color color, int depth, int alpha, int beta) {
@@ -34,7 +37,7 @@ int AIPlayer::alphabeta(Board& board, Color color, int depth, int alpha, int bet
 	}
 	Move avaliableMoves = Game::GetAvaliableAct(board, color);
 	if (!avaliableMoves.size()) {
-		int val = -alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
+		int val = -this->alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
 		if (val >= beta) {
 			return val;
 		}
@@ -43,9 +46,9 @@ int AIPlayer::alphabeta(Board& board, Color color, int depth, int alpha, int bet
 		}
 	} else {
 		for (auto& [key, value] : avaliableMoves) {
-			Game::ExecAct(board, key / 8, key % 8, value, color, false);
-			int val = -this->alphabeta(board, Color(-static_cast<int>(color), depth - 1, -beta, -alpha);
-			Game::ExecAct(board, key / 8, key % 8, value, color, true);
+			Game::ExecAct(board, key / 8, key % 8, color, value, false);
+			int val = -this->alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
+			Game::ExecAct(board, key / 8, key % 8, color, value, true);
 			if (val >= beta) {
 				return val;
 			}
@@ -58,5 +61,11 @@ int AIPlayer::alphabeta(Board& board, Color color, int depth, int alpha, int bet
 }
 
 int AIPlayer::score(Board& board, Color color) {
-
+	int num = 0;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			num += static_cast<int>(board[i][j]);
+		}
+	}
+	return num * static_cast<int>(color);
 }
