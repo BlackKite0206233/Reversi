@@ -96,34 +96,69 @@ void Game::Start() {
 	this->players[1 - this->currentPlayer]->color = Color::White;
 
 	while (1) {
-		this->Print();
+		if (this->isMove) {
+			while (this->history.size() > 0 && this->it != this->history.end() - 1) {
+				this->history.pop_back();
+			}
+			this->history.push_back(pair<int, Board>(this->currentPlayer, this->board));
+			this->it = this->history.end() - 1;
+		}
+		this->isMove = false;
+		Move avaliableMoves = this->GetAvaliableAct(this->board, this->players[this->currentPlayer]->color);
+		this->Print(avaliableMoves);
 
 		pair<int, int> act;
-		Move avaliableMoves = this->GetAvaliableAct(this->board, this->players[this->currentPlayer]->color);
 		while (1) {
 			act = this->players[this->currentPlayer]->Act(board);
+			if (act.first == -1 || act.first == -2 || act.first == -3) {
+				break;
+			}
 
 			if (this->CheckAct(avaliableMoves, act.first, act.second)) {
 				break;
 			}
 		}
-		this->execAct(avaliableMoves, act.first, act.second);
-
-		if (this->checkEnd()) {
-			this->winner = this->players[0]->num < this->players[1]->num;
-			this->printWinner();
+		if (act.first == -1) {
+			vector<pair<int, Board>>::iterator it = this->it;
+			while (it > this->history.begin()) {
+				it--;
+				if (it->first == this->currentPlayer) {
+					this->board = it->second;
+					this->it = it;
+					break;
+				}
+			}
+		} else if (act.first == -2) {
+			vector<pair<int, Board>>::iterator it = this->it;
+			it++;
+			while (it < this->history.end()) {
+				if (it->first == this->currentPlayer) {
+					this->board = it->second;
+					this->it = it;
+					break;
+				}
+				it++;
+			}
+		} else if (act.first == -3) {
 			break;
-		}
+		} else {
+			this->execAct(avaliableMoves, act.first, act.second);
+			this->isMove = true;
 
-		if (this->ChangePlayer(this->board, this->players[1 - this->currentPlayer]->color)) {
-			this->currentPlayer = 1 - this->currentPlayer;
-		}
+			if (this->checkEnd()) {
+				this->winner = this->players[0]->num < this->players[1]->num;
+				this->printWinner();
+				break;
+			}
 
-		this->round++;
+			if (this->ChangePlayer(this->board, this->players[1 - this->currentPlayer]->color)) {
+				this->currentPlayer = 1 - this->currentPlayer;
+			}
+		}
 	}
 }
 
-void Game::Print() {
+void Game::Print(const Move& avaliableMoves) {
 	system("cls");
 
 	string row = "   +---+---+---+---+---+---+---+---+";
@@ -132,7 +167,12 @@ void Game::Print() {
 	for (int i = 0; i < 8; i++) {
 		cout << " " << i + 1 << " | ";
 		for (int j = 0; j < 8; j++) {
-			cout << (this->board[i][j] == Color::Black ? "@" : (this->board[i][j] == Color::White ? "O" : " ")) << " | ";
+			if (avaliableMoves.find(i * 8 + j) != avaliableMoves.end()) {
+				cout << "x" << " | ";
+			}
+			else {
+				cout << (this->board[i][j] == Color::Black ? "@" : (this->board[i][j] == Color::White ? "O" : " ")) << " | ";
+			}
 		}
 		if (i == 3) {
 			cout << "   player0 (" << (this->players[0]->color == Color::Black ? "@" : "O") << ": " << this->players[0]->num << ")";
@@ -158,7 +198,9 @@ void Game::init() {
 	this->board[3][3] = this->board[4][4] = Color::White;
 	this->board[3][4] = this->board[4][3] = Color::Black;
 
-	this->round = 0;
+	this->history.clear();
+	this->it = this->history.end();
+	this->isMove = true;
 }
 
 void Game::printWinner() {

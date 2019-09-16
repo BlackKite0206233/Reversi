@@ -16,15 +16,17 @@ public:
 	Player* players[2];
 	Board board;
 	Game();
-	void Print();
+	void Print(const Move&);
 	void Start();
 private:
 	static bool canMove(int, int);
 	static vector<Direction> getDirection(const Board&, int, int, Color);
 	
-	int round;
 	int currentPlayer;
 	int winner;
+	bool isMove;
+	vector<pair<int, Board>> history;
+	vector<pair<int, Board>>::iterator it;
 	void init();
 	void printWinner();
 	void execAct(Move&, int, int);
