@@ -1,5 +1,5 @@
 #pragma once
-#include "Game.h"
+#include "Reversi.h"
 
 class AIPlayer : public Player {
 public:

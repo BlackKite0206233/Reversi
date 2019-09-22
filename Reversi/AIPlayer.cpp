@@ -1,12 +1,12 @@
 #include "AIPlayer.h"
 
 AIPlayer::AIPlayer(int depth) : depth(depth) {
-
+	playerType = PlayerType::AI;
 }
 
 pair<int, int> AIPlayer::Act(const Board& board) {
 	Board b = board;
-	int coord = this->negamax(b, this->color);
+	int coord = negamax(b, color);
 	return pair<int, int>(coord / 8, coord % 8);
 }
 
@@ -14,12 +14,12 @@ int AIPlayer::negamax(Board& board, Color color) {
 	int coord;
 	int alpha = -100;
 	int beta = 100;
-	Move avaliableMoves = Game::GetAvaliableAct(board, color);
+	Move avaliableMoves = Reversi::GetAvaliableAct(board, color);
 	coord = avaliableMoves.begin()->first;
 	for (auto& [key, value] : avaliableMoves) {
-		Game::ExecAct(board, key / 8, key % 8, color, value, false);
-		int val = -this->alphabeta(board, Color(-static_cast<int>(color)), this->depth, -beta, -alpha);
-		Game::ExecAct(board, key / 8, key % 8, color, value, true);
+		Reversi::ExecAct(board, key / 8, key % 8, color, value, false);
+		int val = -alphabeta(board, Color(-static_cast<int>(color)), depth, -beta, -alpha);
+		Reversi::ExecAct(board, key / 8, key % 8, color, value, true);
 		if (val >= beta) {
 			return key;
 		}
@@ -32,23 +32,24 @@ int AIPlayer::negamax(Board& board, Color color) {
 }
 
 int AIPlayer::alphabeta(Board& board, Color color, int depth, int alpha, int beta) {
-	if (depth == 0 || Game::CheckEnd(board)) {
-		return this->score(board, color);
+	if (depth == 0 || Reversi::CheckEnd(board)) {
+		return score(board, color);
 	}
-	Move avaliableMoves = Game::GetAvaliableAct(board, color);
+	Move avaliableMoves = Reversi::GetAvaliableAct(board, color);
 	if (!avaliableMoves.size()) {
-		int val = -this->alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
+		int val = -alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
 		if (val >= beta) {
 			return val;
 		}
 		if (val > alpha) {
 			alpha = val;
 		}
-	} else {
+	}
+	else {
 		for (auto& [key, value] : avaliableMoves) {
-			Game::ExecAct(board, key / 8, key % 8, color, value, false);
-			int val = -this->alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
-			Game::ExecAct(board, key / 8, key % 8, color, value, true);
+			Reversi::ExecAct(board, key / 8, key % 8, color, value, false);
+			int val = -alphabeta(board, Color(-static_cast<int>(color)), depth - 1, -beta, -alpha);
+			Reversi::ExecAct(board, key / 8, key % 8, color, value, true);
 			if (val >= beta) {
 				return val;
 			}
